@@ -12,21 +12,22 @@ import java.util.*
 
 @Suppress("DEPRECATION")
 class CrimePagerActivity : AppCompatActivity() {
-    private val crimelab = CrimeLab.get()
+
     private lateinit var mCrimes: List<Crime>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_crime_pager)
         var crimId = intent.getSerializableExtra(EXTRA_CRIME_ID) as Int
-        mCrimes = crimelab.getCrimes1()
+        val crimelab = CrimeLab.get()
+        var crimes = crimelab.initCrimes()
         val fragment = supportFragmentManager
         pager.adapter = object : FragmentStatePagerAdapter(fragment) {
             override fun getCount(): Int {
-               return mCrimes.size
+               return crimes.size
             }
 
             override fun getItem(position: Int): Fragment {
-                val crime = mCrimes[position]
+                val crime = crimes[position]
                 return CrimeFragment.newInstance(position)
             }
         }

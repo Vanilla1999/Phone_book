@@ -8,12 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import kotlinx.android.synthetic.main.fragment_crime.*
 import kotlinx.android.synthetic.main.fragment_crime.view.*
 import java.util.*
 import androidx.core.widget.addTextChangedListener as addTextChangedListener1
 
 class CrimeFragment : Fragment(R.layout.fragment_crime) {
+   val DIALOG_DATE = "DialogDate"
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         var mCrime = Crime()
@@ -40,7 +42,11 @@ class CrimeFragment : Fragment(R.layout.fragment_crime) {
 
 
         crime_date.text = mCrime.mDate.toString()
-        crime_date.isEnabled = false
+        crime_date.setOnClickListener {
+            var dialog=DatePickerFragment()
+            var manager: FragmentManager? =fragmentManager
+            fragmentManager?.let { it1 -> dialog.show(it1,DIALOG_DATE) }
+        }
         crime_solved.setOnCheckedChangeListener { _, isChecked -> mCrime.mSolved = isChecked }
     }
 companion object {
