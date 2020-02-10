@@ -26,14 +26,8 @@ class CrimeLab {
        return crimes
     }
 
-    fun getCrime(id: UUID): Crime? {
-        for (crime in crimes) {
-            if (crime.mId == id) {
-                return crime
-            }
-        }
-        return null
-    }
+
+
 
     companion object {
         fun get(): CrimeLab = CrimeLab()

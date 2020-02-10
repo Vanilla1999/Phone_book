@@ -11,24 +11,30 @@ import kotlinx.android.synthetic.main.activity_crime_pager.*
 import java.util.*
 
 @Suppress("DEPRECATION")
-class CrimePagerActivity : AppCompatActivity() {
+class CrimePagerActivity : AppCompatActivity(R.layout.activity_crime_pager) {
 
     private lateinit var mCrimes: List<Crime>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_crime_pager)
-        var crimId = intent.getSerializableExtra(EXTRA_CRIME_ID) as Int
+        var crimId = intent.getIntExtra(EXTRA_CRIME_ID,0)
         val crimelab = CrimeLab.get()
         var crimes = crimelab.initCrimes()
         val fragment = supportFragmentManager
         pager.adapter = object : FragmentStatePagerAdapter(fragment) {
             override fun getCount(): Int {
-               return crimes.size
+                return crimes.size
             }
 
             override fun getItem(position: Int): Fragment {
                 val crime = crimes[position]
                 return CrimeFragment.newInstance(position)
+            }
+        }
+
+        for (i in 0..crimes.size) {
+            if (crimes[i].mId == crimId) {
+                pager.currentItem = i
+                break
             }
         }
     }
