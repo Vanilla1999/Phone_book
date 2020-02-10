@@ -52,8 +52,8 @@ public class CrimeAdapter(
         holder.itemView.crime_title.text = crime.mTitle
         holder.itemView.setOnClickListener {
             run {
-                activityListener.get()?.onClick(position,true)
-                fragmentListener.get()?.onClick(position,crime.mSolved)
+                activityListener.get()?.onClick(position)
+                fragmentListener.get()?.onClick(position)
             }
         }
     }
@@ -67,6 +67,6 @@ public class CrimeAdapter(
         RecyclerView.ViewHolder(inflater.inflate(R.layout.list_item_crime, parent, false))
 
     public interface OnItemClickListener{
-        fun onClick(position: Int,kekl:Boolean)
+        fun onClick(position: Int)
     }
 }

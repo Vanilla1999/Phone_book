@@ -17,7 +17,7 @@ class CrimeFragment : Fragment(R.layout.fragment_crime) {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         var mCrime = Crime()
-       val crimeId = arguments?.getSerializable(ARG_CRIME_ID) as UUID
+       val crimeId = arguments?.getSerializable(ARG_CRIME_ID) as Int
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -45,10 +45,10 @@ class CrimeFragment : Fragment(R.layout.fragment_crime) {
     }
 companion object {
     val ARG_CRIME_ID="crime_id"
-     fun newInstance(crimeId: UUID) : CrimeFragment{
-       var args:Bundle=Bundle()
+     fun newInstance(crimeId: Int) : CrimeFragment{
+       var args=Bundle()
          args.putSerializable(ARG_CRIME_ID,crimeId)
-         var fragment:CrimeFragment=CrimeFragment()
+         var fragment=CrimeFragment()
          fragment.arguments = args
          return fragment
     }

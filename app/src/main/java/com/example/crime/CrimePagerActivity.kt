@@ -10,25 +10,26 @@ import androidx.viewpager.widget.ViewPager
 import kotlinx.android.synthetic.main.activity_crime_pager.*
 import java.util.*
 
+@Suppress("DEPRECATION")
 class CrimePagerActivity : AppCompatActivity() {
     private val crimelab = CrimeLab.get()
     private lateinit var mCrimes: List<Crime>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_crime_pager)
-        var crimId = intent.getSerializableExtra(EXTRA_CRIME_ID) as UUID
+        var crimId = intent.getSerializableExtra(EXTRA_CRIME_ID) as Int
         mCrimes = crimelab.getCrimes1()
         val fragment = supportFragmentManager
-        pager.setAdapter(object : FragmentStatePagerAdapter(fragment) {
+        pager.adapter = object : FragmentStatePagerAdapter(fragment) {
             override fun getCount(): Int {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+               return mCrimes.size
             }
 
             override fun getItem(position: Int): Fragment {
-                val crime = mCrimes.get(position)
-                return CrimeFragment.newInstance(crime.mId)
+                val crime = mCrimes[position]
+                return CrimeFragment.newInstance(position)
             }
-        })
+        }
     }
 
     companion object {
@@ -39,4 +40,5 @@ class CrimePagerActivity : AppCompatActivity() {
             return intent
         }
     }
+
 }

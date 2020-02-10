@@ -8,24 +8,17 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.PagerAdapter
 
-class pagerAdapter(manager: FragmentManager) : FragmentPagerAdapter(manager) {
-    private val mFragmentList: ArrayList<Fragment> = ArrayList()
-    private val mFragmentTitleList: ArrayList<String> = ArrayList()
+// 1
+class MoviesPagerAdapter(fragmentManager: FragmentManager, private val movies: ArrayList<Crime>) :
+    FragmentStatePagerAdapter(fragmentManager) {
 
+    // 2
     override fun getItem(position: Int): Fragment {
-        return mFragmentList[position]
+        return CrimeFragment.newInstance(position)
     }
 
+    // 3
     override fun getCount(): Int {
-        return mFragmentList.size
-    }
-
-    fun addFragment(fragment: Fragment, title: String) {
-        mFragmentList.add(fragment)
-        mFragmentTitleList.add(title)
-    }
-
-    override fun getPageTitle(position: Int): CharSequence? {
-        return mFragmentTitleList.get(position)
+        return movies.size
     }
 }

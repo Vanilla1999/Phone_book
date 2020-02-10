@@ -27,10 +27,9 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
     }
 
 
-    override fun onClick(position: Int, kekl: Boolean) {
+    override fun onClick(position: Int) {
         var intent = CrimePagerActivity.newIntent(context, position)
-        startActivityForResult(intent, EXTRA_ANSWER_SHOWN)
-         crimes=  crimelab.updateCrime(position,mIsCheater,crimes)
+        startActivity(intent)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
