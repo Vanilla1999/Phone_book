@@ -13,11 +13,12 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
     private var  mIsCheater:Boolean= false
     private val EXTRA_ANSWER_SHOWN2 = "KEK3"
     private val EXTRA_ANSWER_SHOWN = 0
-    private val crimelab = CrimeLab.get()
-    private var crimes = crimelab.initCrimes()
+    private val crimelab = CrimeLab.instance
+
     private lateinit var  c:List<Crime>
    private lateinit var mAdapter:CrimeAdapter
     override fun onActivityCreated(savedInstanceState: Bundle?) {
+        var crimes = crimelab.getCrimes()
         super.onActivityCreated(savedInstanceState)// this@CrimeListActivity
         crimeRecyclerView.layoutManager = LinearLayoutManager(activity)
         mAdapter =
@@ -48,7 +49,7 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
 
     override fun onResume() {
         super.onResume()
-
+        mAdapter.notifyDataSetChanged()
     }
 }
 

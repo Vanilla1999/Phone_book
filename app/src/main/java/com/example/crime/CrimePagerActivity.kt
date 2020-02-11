@@ -17,8 +17,8 @@ class CrimePagerActivity : AppCompatActivity(R.layout.activity_crime_pager) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         var crimId = intent.getIntExtra(EXTRA_CRIME_ID,0)
-        val crimelab = CrimeLab.get()
-        var crimes = crimelab.initCrimes()
+        val crimelab = CrimeLab.instance
+        var crimes = crimelab.getCrimes()
         val fragment = supportFragmentManager
         pager.adapter = object : FragmentStatePagerAdapter(fragment) {
             override fun getCount(): Int {

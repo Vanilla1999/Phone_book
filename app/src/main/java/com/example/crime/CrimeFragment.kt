@@ -18,12 +18,15 @@ import androidx.core.widget.addTextChangedListener as addTextChangedListener1
 
 class CrimeFragment : Fragment(R.layout.fragment_crime) {
     val DIALOG_DATE = "DialogDate"
-    val REQUES_DATE=0
-    var mCrime: Crime = Crime()
+    val REQUES_DATE = 0
+    var mCrime = CrimeLab.instance
+    var mCrime1=mCrime.getCrimes()
+
+
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        var mCrime = Crime()
-        val crimeId = arguments?.getSerializable(ARG_CRIME_ID) as Int
+
+
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -43,7 +46,8 @@ class CrimeFragment : Fragment(R.layout.fragment_crime) {
                 s: CharSequence, start: Int,
                 before: Int, count: Int
             ) {
-                mCrime.mTitle = s.toString()
+                val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
+                mCrime1[crimeId].mTitle = s.toString()
             }
         })
 
@@ -52,35 +56,46 @@ class CrimeFragment : Fragment(R.layout.fragment_crime) {
         updateDate()
         crime_date.setOnClickListener {
             var manager: FragmentManager? = fragmentManager
-            var dialog:DatePickerFragment = DatePickerFragment().newInstance(mCrime.mDate)
-            dialog.setTargetFragment(this,REQUES_DATE)// Назначение целевого фрагмента, связываем фрагмент и диалоговое окно
+            val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
+            var dialog: DatePickerFragment = DatePickerFragment().newInstance(mCrime1[crimeId].mDate)
+            dialog.setTargetFragment(
+                this,
+                REQUES_DATE
+            )// Назначение целевого фрагмента, связываем фрагмент и диалоговое окно
             if (manager != null) {
-                dialog.show(manager,DIALOG_DATE)
+                dialog.show(manager, DIALOG_DATE)
             }
 
         }
-        crime_solved.setOnCheckedChangeListener { _, isChecked -> mCrime.mSolved = isChecked }
+        crime_solved.setOnCheckedChangeListener { _, isChecked ->
+            val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
+            mCrime1[crimeId].mSolved = isChecked }
     }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode != Activity.RESULT_OK) {return}
+        if (resultCode != Activity.RESULT_OK) {
+            return
+        }
         if (requestCode == REQUES_DATE) {
             if (data == null) return
             var date = data.getSerializableExtra("com.bignerdranch.android.criminalintent") as Date
-            mCrime.mDate=date
+            val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
+            mCrime1[crimeId].mDate = date
             updateDate()
         }
     }
 
     private fun updateDate() {
-        crime_date.text = mCrime.mDate.toString()
+        val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
+        crime_date.text = mCrime1[crimeId].mDate.toString()
     }
 
     companion object {
         val ARG_CRIME_ID = "crime_id"
         fun newInstance(crimeId: Int): CrimeFragment {
             var args = Bundle()
-            args.putSerializable(ARG_CRIME_ID, crimeId)
+            args.putInt(ARG_CRIME_ID, crimeId)
             var fragment = CrimeFragment()
             fragment.arguments = args
             return fragment

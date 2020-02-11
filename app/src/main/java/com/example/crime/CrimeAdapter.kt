@@ -1,21 +1,14 @@
 package com.example.crime
 
-import android.annotation.SuppressLint
-import android.content.Intent
-import android.media.Image
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.list_item_crime.view.*
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeFormatter.ofPattern
 import java.util.*
 
 public class CrimeAdapter(
@@ -38,13 +31,9 @@ public class CrimeAdapter(
     override fun onBindViewHolder(holder: CrimeHolder, position: Int) {
         val crime = crimes[position]
         //updateData(crimes)
-        var formatter = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            DateTimeFormatter.ofPattern("dd-MMMM-yyyy")
-        } else {
-            val pattern = "yyyy-MM-dd"
-            val simpleDateFormat = SimpleDateFormat(pattern)
-            holder.itemView.crime_date.text = simpleDateFormat.format(Date()).toString()
-        }
+
+            holder.itemView.crime_date.text = crime.mDate.toString()
+
 
         holder.itemView.crime_solved.visibility= if(!crime.mSolved) View.GONE else View.VISIBLE
 
