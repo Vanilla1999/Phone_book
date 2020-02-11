@@ -1,5 +1,7 @@
 package com.example.crime
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -16,6 +18,8 @@ import androidx.core.widget.addTextChangedListener as addTextChangedListener1
 
 class CrimeFragment : Fragment(R.layout.fragment_crime) {
     val DIALOG_DATE = "DialogDate"
+    val REQUES_DATE=0
+    var mCrime: Crime = Crime()
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         var mCrime = Crime()
@@ -24,7 +28,7 @@ class CrimeFragment : Fragment(R.layout.fragment_crime) {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        var mCrime: Crime = Crime()
+
         crime_title.addTextChangedListener(object : TextWatcher {
 
             override fun afterTextChanged(s: Editable) {}
@@ -45,16 +49,31 @@ class CrimeFragment : Fragment(R.layout.fragment_crime) {
 
 
 
-        crime_date.text = mCrime.mDate.toString()
+        updateDate()
         crime_date.setOnClickListener {
             var manager: FragmentManager? = fragmentManager
-            var dialog:DatePickerFragment = DatePickerFragment()
+            var dialog:DatePickerFragment = DatePickerFragment().newInstance(mCrime.mDate)
+            dialog.setTargetFragment(this,REQUES_DATE)// Назначение целевого фрагмента, связываем фрагмент и диалоговое окно
             if (manager != null) {
                 dialog.show(manager,DIALOG_DATE)
             }
 
         }
         crime_solved.setOnCheckedChangeListener { _, isChecked -> mCrime.mSolved = isChecked }
+    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode != Activity.RESULT_OK) {return}
+        if (requestCode == REQUES_DATE) {
+            if (data == null) return
+            var date = data.getSerializableExtra("com.bignerdranch.android.criminalintent") as Date
+            mCrime.mDate=date
+            updateDate()
+        }
+    }
+
+    private fun updateDate() {
+        crime_date.text = mCrime.mDate.toString()
     }
 
     companion object {

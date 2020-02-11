@@ -31,9 +31,10 @@ class CrimePagerActivity : AppCompatActivity(R.layout.activity_crime_pager) {
             }
         }
 
-        for (i in 0..crimes.size) {
+        for ( i in 0..crimes.size) {
             if (crimes[i].mId == crimId) {
                 pager.currentItem = i
+
                 break
             }
         }

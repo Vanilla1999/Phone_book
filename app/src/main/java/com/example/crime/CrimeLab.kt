@@ -10,6 +10,7 @@ class CrimeLab {
     fun initCrimes(): List<Crime> {
         for (i in 0..100) {
             var crime = Crime()
+            crime.mId=i
             crime.mTitle = "Crime #$i"
             crime.mSolved = (i % 2 == 0)
             crimes = crimes + crime
