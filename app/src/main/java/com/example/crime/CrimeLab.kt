@@ -16,15 +16,7 @@ class CrimeLab  {
 
     private var crimes: List<Crime> = ArrayList()
 
-     init{
-        for (i in 0..100) {
-            var crime = Crime()
-            crime.mId = i
-            crime.mTitle = "Crime #$i"
-            crime.mSolved = (i % 2 == 0)
-            crimes = crimes + crime
-        }
-    }
+     
 
     fun updateCrime(i1: Int, i: Boolean, c: List<Crime>): List<Crime> {
         for (k in 0..100)
@@ -33,6 +25,13 @@ class CrimeLab  {
         return c
     }
 
+    fun addCrime(c:Crime):Crime{
+        c.mId= crimes.size +1
+        c.mTitle = "Crime #${c.mId}"
+        c.mSolved = (c.mId!! % 2 == 0)
+        crimes=crimes+c
+        return c
+    }
     fun getCrimes(): List<Crime> {
         return crimes
     }

@@ -42,7 +42,7 @@ class CrimePagerActivity : AppCompatActivity(R.layout.activity_crime_pager) {
 
     companion object {
         val EXTRA_CRIME_ID = "crime_id"
-        fun newIntent(packageContext: Context?, crimeId: Int): Intent {
+        fun newIntent(packageContext: Context?, crimeId: Int?): Intent {
             var intent = Intent(packageContext, CrimePagerActivity::class.java)
             intent.putExtra(EXTRA_CRIME_ID, crimeId)
             return intent
