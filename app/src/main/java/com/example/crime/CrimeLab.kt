@@ -1,6 +1,7 @@
 package com.example.crime
 
 import android.content.Context
+import com.example.crime.database.CrimeBaseHelper
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -12,8 +13,10 @@ class CrimeLab  {
     companion object {
         val instance: CrimeLab by lazy { HOLDER.INSTANCE }
     }
-
-
+    private fun CrimeLab(context:Context){
+        val mComtext=context.applicationContext
+        val mDatabase=CrimeBaseHelper(mComtext).writableDatabase
+    }
     private var crimes: List<Crime> = ArrayList()
 
      
