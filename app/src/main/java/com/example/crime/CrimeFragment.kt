@@ -20,7 +20,7 @@ class CrimeFragment : Fragment(R.layout.fragment_crime) {
     val DIALOG_DATE = "DialogDate"
     val REQUES_DATE = 0
     var mCrime = CrimeLab.instance
-    var mCrime1=mCrime.getCrimes()
+    var mCrime1=mCrime.mDatabase.crimeDao.getAllcrime()
 
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,7 +95,10 @@ class CrimeFragment : Fragment(R.layout.fragment_crime) {
         val ARG_CRIME_ID = "crime_id"
         fun newInstance(crimeId: Int): CrimeFragment {
             var args = Bundle()
-            args.putInt(ARG_CRIME_ID, crimeId)
+            args.apply {
+                putInt(ARG_CRIME_ID, crimeId)
+            }
+
             var fragment = CrimeFragment()
             fragment.arguments = args
             return fragment

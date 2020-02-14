@@ -18,7 +18,7 @@ class CrimePagerActivity : AppCompatActivity(R.layout.activity_crime_pager) {
         super.onCreate(savedInstanceState)
         var crimId = intent.getIntExtra(EXTRA_CRIME_ID,0)
         val crimelab = CrimeLab.instance
-        var crimes = crimelab.getCrimes()
+        var crimes = crimelab.mDatabase.crimeDao.getAllcrime()
         val fragment = supportFragmentManager
         pager.adapter = object : FragmentStatePagerAdapter(fragment) {
             override fun getCount(): Int {
@@ -32,7 +32,7 @@ class CrimePagerActivity : AppCompatActivity(R.layout.activity_crime_pager) {
         }
 
         for ( i in 0..crimes.size) {
-            if (crimes[i].mId == crimId) {
+            if (crimes[i].id == crimId) {
                 pager.currentItem = i
 
                 break

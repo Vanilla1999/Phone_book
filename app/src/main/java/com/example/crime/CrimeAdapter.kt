@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.crime.database.Crime1
 import kotlinx.android.synthetic.main.list_item_crime.view.*
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
@@ -12,7 +13,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 public class CrimeAdapter(
-    private var crimes: List<Crime>,
+    private var crimes: List<Crime1>,
     private val fragmentListener: WeakReference<OnItemClickListener>,
     private val activityListener: WeakReference<OnItemClickListener>) : RecyclerView.Adapter<CrimeAdapter.CrimeHolder>() {
 
