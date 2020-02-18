@@ -20,7 +20,7 @@ class CrimeLab  {
      lateinit var mComtext: Context
     fun CrimeLab(context:Context?){
          mComtext=context!!.applicationContext
-         mDatabase= Room.databaseBuilder(mComtext,crimeDatabase1::class.java,"database").build()
+         mDatabase= Room.databaseBuilder(mComtext,crimeDatabase1::class.java,"database").addMigrations().build()
     }
     private var crimes: List<Crime> = ArrayList()
 

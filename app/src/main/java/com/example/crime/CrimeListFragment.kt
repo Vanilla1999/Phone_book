@@ -3,6 +3,7 @@ package com.example.crime
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -11,10 +12,15 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.crime.database.Crime1
 import com.example.crime.database.crimeDatabase1
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_crime_list.*
+
+
 import java.lang.ref.WeakReference
-import java.util.*
+
 
 class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.OnItemClickListener {
     private var mIsCheater: Boolean = false
@@ -22,15 +28,25 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
     private val EXTRA_ANSWER_SHOWN = 0
     private var mSubtitleVisible: Boolean = true
     private var crimelab = CrimeLab.instance
-    lateinit var kek:crimeDatabase1
+    lateinit var kek: crimeDatabase1
     private lateinit var c: List<Crime>
     private lateinit var mAdapter: CrimeAdapter
     private var crime1: Crime1 = Crime1()
     private lateinit var list: List<Crime1>
+    private var compositeDisposable = CompositeDisposable()
+
     fun swapData(c: List<Crime1>) {
-        mAdapter =
-            CrimeAdapter(list, WeakReference(this), WeakReference(activity as CrimeListActivity))
-        return crimeRecyclerView.setAdapter(mAdapter)
+        compositeDisposable.add(
+            crimelab.mDatabase.crimeDao.getAllcrime()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { list ->
+                    mAdapter =
+                        CrimeAdapter(list, WeakReference(this), WeakReference(activity as CrimeListActivity))
+                    mAdapter.notifyDataSetChanged()
+                    crimeRecyclerView.adapter = mAdapter
+                })
+
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -40,14 +56,25 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
         )// передаем сохраненное значение
         crimeRecyclerView.layoutManager = LinearLayoutManager(activity)
         setHasOptionsMenu(true)
-        crimelab.CrimeLab(context)
-        list = crimelab.mDatabase.crimeDao.getAllcrime()
-        mAdapter =
-            CrimeAdapter(list, WeakReference(this), WeakReference(activity as CrimeListActivity))
-        mAdapter.notifyDataSetChanged()
+        crimelab.CrimeLab(context)// потоки
 
+        compositeDisposable.add(
+            crimelab.mDatabase.crimeDao.getAllcrime()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe ({ list ->
+                    mAdapter =
+                        CrimeAdapter(
+                            list,
+                            WeakReference(this),
+                            WeakReference(activity as CrimeListActivity)
+                        )
+                    mAdapter.notifyDataSetChanged()
+                    crimeRecyclerView.adapter = mAdapter
+                }, {throwable -> Log.e("TAG", throwable.toString())})
+        )
 
-        return crimeRecyclerView.setAdapter(mAdapter)
+       // return crimeRecyclerView.setAdapter(mAdapter)
 
     }
 
@@ -68,18 +95,34 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
             if (data == null) return
             mIsCheater = CrimeActivity.wasAnswerShown(data)
         }
-        mAdapter.notifyDataSetChanged()
     }
 
     override fun onResume() {
         super.onResume()
-        var crimes = crimelab.mDatabase.crimeDao.getAllcrime()
-        swapData(crimes)
-        mAdapter.notifyDataSetChanged()
+        compositeDisposable.add(
+            crimelab.mDatabase.crimeDao.getAllcrime()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { crimes ->
+                    swapData(crimes)
+                    mAdapter =
+                        CrimeAdapter(
+                            crimes,
+                            WeakReference(this),
+                            WeakReference(activity as CrimeListActivity)
+                        )
+                    mAdapter.notifyDataSetChanged()
+                })
+
         updateSubtitle()
-        list = crimelab.mDatabase.crimeDao.getAllcrime()
-        if (crimes.isEmpty()) activity?.textView?.text = "Список пуст"
-        else activity?.textView?.text = null
+        compositeDisposable.add(
+            crimelab.mDatabase.crimeDao.getAllcrime()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { crimes ->
+                    if (crimes.isEmpty() ) activity?.textView?.text = "Список пуст"
+                    else activity?.textView?.text = null
+                })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -94,13 +137,31 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.new_crime -> {
-                var crime = Crime()
                 crimelab.CrimeLab(context)
-                crimelab.mDatabase.crimeDao.insert(crime1)
-                val k = list.size + 1
-                var intent: Intent = CrimePagerActivity.newIntent(activity, k)
-                startActivity(intent)
-                mAdapter.notifyDataSetChanged()
+                compositeDisposable.add(
+                    crimelab.mDatabase.crimeDao.insert(crime1)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe {
+                            compositeDisposable.add(
+                                crimelab.mDatabase.crimeDao.getAllcrime()
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe { list ->
+                                        var crime = Crime()
+                                        val k = list.size
+                                        var intent: Intent =
+                                            CrimePagerActivity.newIntent(activity, k)
+                                        startActivity(intent)
+                                        mAdapter =
+                                            CrimeAdapter(
+                                                list,
+                                                WeakReference(this),
+                                                WeakReference(activity as CrimeListActivity)
+                                            )
+                                        mAdapter.notifyDataSetChanged()
+                                    }) })
+
                 return true
             }
             R.id.show_subtitle -> {
@@ -114,13 +175,20 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
     }
 
     private fun updateSubtitle() {
-        val crimeCount = list.size
-        var subtitle: String? = getString(R.string.subtitle_format, crimeCount)
-        if (!mSubtitleVisible) {
-            subtitle = null
-        }
-        val activity = activity as AppCompatActivity// Добавляет строчку снизу с кол-во
-        activity.supportActionBar?.subtitle = subtitle
+        compositeDisposable.add(
+            crimelab.mDatabase.crimeDao.getAllcrime()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { list ->
+                    val crimeCount = list.size
+                    var subtitle: String? = getString(R.string.subtitle_format, crimeCount)
+                    if (!mSubtitleVisible) {
+                        subtitle = null
+                    }
+                    val activity = activity as AppCompatActivity// Добавляет строчку снизу с кол-во
+                    activity.supportActionBar?.subtitle = subtitle
+                })
+
     }
 
     override fun onSaveInstanceState(outState: Bundle) { // метод для сохранения состояния
@@ -128,6 +196,10 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
         outState.putBoolean(SAVED_SUBTITLE_VISIBLE, mSubtitleVisible)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.dispose()
+    }
     companion object {
         val SAVED_SUBTITLE_VISIBLE = "subtitle"
     }

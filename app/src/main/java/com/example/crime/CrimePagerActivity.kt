@@ -3,12 +3,21 @@ package com.example.crime
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.ViewPager
+import com.example.crime.database.Crime1
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+
 import kotlinx.android.synthetic.main.activity_crime_pager.*
+import java.lang.ref.WeakReference
 import java.util.*
+
+private var compositeDisposable = CompositeDisposable()
 
 @Suppress("DEPRECATION")
 class CrimePagerActivity : AppCompatActivity(R.layout.activity_crime_pager) {
@@ -16,28 +25,36 @@ class CrimePagerActivity : AppCompatActivity(R.layout.activity_crime_pager) {
     private lateinit var mCrimes: List<Crime>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        var crimId = intent.getIntExtra(EXTRA_CRIME_ID,0)
+        var crimId = intent.getIntExtra(EXTRA_CRIME_ID, 0)
         val crimelab = CrimeLab.instance
-        var crimes = crimelab.mDatabase.crimeDao.getAllcrime()
-        val fragment = supportFragmentManager
-        pager.adapter = object : FragmentStatePagerAdapter(fragment) {
-            override fun getCount(): Int {
-                return crimes.size
-            }
+        compositeDisposable.add(
+            crimelab.mDatabase.crimeDao.getAllcrime()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ crimes ->
+                    val fragment = supportFragmentManager
+                    pager.adapter = object : FragmentStatePagerAdapter(fragment) {
+                        override fun getCount(): Int {
+                            return crimes.size
+                        }
 
-            override fun getItem(position: Int): Fragment {
-                val crime = crimes[position]
-                return CrimeFragment.newInstance(position)
-            }
-        }
+                        override fun getItem(position: Int): Fragment {
+                            val crime = crimes[position]
+                            return CrimeFragment.newInstance(position)
+                        }
+                    }
 
-        for ( i in 0..crimes.size) {
-            if (crimes[i].id == crimId) {
-                pager.currentItem = i
+                    for (i in 0..crimes.size) {
+                       var lel=crimId
+                        if (crimes[i].id == crimId) {
+                            pager.currentItem = i
 
-                break
-            }
-        }
+                            break
+                        }
+                    }
+                }, { throwable -> Log.e("TAG", throwable.toString()) })
+        )
+
     }
 
     companion object {

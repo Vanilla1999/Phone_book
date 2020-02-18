@@ -6,6 +6,7 @@ buildscript {
         google()
         jcenter()
 
+        ext.room_version = '2.1.0-alpha01'
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.3'
@@ -19,8 +20,9 @@ allprojects {
     repositories {
         google()
         jcenter()
-
-    }
+        repositories {
+            maven { url "https://oss.jfrog.org/libs-snapshot" }
+    }}
 }
 
 task clean(type: Delete) {

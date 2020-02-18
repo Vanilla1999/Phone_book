@@ -5,22 +5,20 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.CompoundButton
+import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_crime.*
-import kotlinx.android.synthetic.main.fragment_crime.view.*
 import java.util.*
-import androidx.core.widget.addTextChangedListener as addTextChangedListener1
 
 class CrimeFragment : Fragment(R.layout.fragment_crime) {
     val DIALOG_DATE = "DialogDate"
     val REQUES_DATE = 0
     var mCrime = CrimeLab.instance
-    var mCrime1=mCrime.mDatabase.crimeDao.getAllcrime()
+    private var compositeDisposable = CompositeDisposable()
 
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,8 +44,17 @@ class CrimeFragment : Fragment(R.layout.fragment_crime) {
                 s: CharSequence, start: Int,
                 before: Int, count: Int
             ) {
-                val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
-                mCrime1[crimeId].mTitle = s.toString()
+                compositeDisposable.add(
+                    mCrime.mDatabase.crimeDao.getAllcrime()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe ({ list ->
+                            val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
+                            list[crimeId].mTitle = s.toString()
+
+                        }, {throwable -> Log.e("TAG", throwable.toString())})
+                )
+
             }
         })
 
@@ -55,40 +62,75 @@ class CrimeFragment : Fragment(R.layout.fragment_crime) {
 
         updateDate()
         crime_date.setOnClickListener {
-            var manager: FragmentManager? = fragmentManager
-            val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
-            var dialog: DatePickerFragment = DatePickerFragment().newInstance(mCrime1[crimeId].mDate)
-            dialog.setTargetFragment(
-                this,
-                REQUES_DATE
-            )// Назначение целевого фрагмента, связываем фрагмент и диалоговое окно
-            if (manager != null) {
-                dialog.show(manager, DIALOG_DATE)
-            }
+            compositeDisposable.add(
+                mCrime.mDatabase.crimeDao.getAllcrime()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe ({ list ->
+                        var manager: FragmentManager? = fragmentManager
+                        val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
+                        var dialog: DatePickerFragment = DatePickerFragment().newInstance(list[crimeId].mDate)
+                        dialog.setTargetFragment(
+                            this,
+                            REQUES_DATE
+                        )// Назначение целевого фрагмента, связываем фрагмент и диалоговое окно
+                        if (manager != null) {
+                            dialog.show(manager, DIALOG_DATE)
+                        }
+
+                    }, {throwable -> Log.e("TAG", throwable.toString())})
+            )
+
 
         }
         crime_solved.setOnCheckedChangeListener { _, isChecked ->
-            val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
-            mCrime1[crimeId].mSolved = isChecked }
+            compositeDisposable.add(
+                mCrime.mDatabase.crimeDao.getAllcrime()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe ({ list ->
+                        val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
+                        list[crimeId].mSolved = isChecked
+                    }, {throwable -> Log.e("TAG", throwable.toString())})
+            )
+            }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode != Activity.RESULT_OK) {
-            return
-        }
-        if (requestCode == REQUES_DATE) {
-            if (data == null) return
-            var date = data.getSerializableExtra("com.bignerdranch.android.criminalintent") as Date
-            val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
-            mCrime1[crimeId].mDate = date
-            updateDate()
-        }
+
+        compositeDisposable.add(
+            mCrime.mDatabase.crimeDao.getAllcrime()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe ({ list ->
+                    super.onActivityResult(requestCode, resultCode, data)
+                    if (resultCode != Activity.RESULT_OK) {
+                        return@subscribe
+                    }
+                    if (requestCode == REQUES_DATE) {
+                        if (data == null) return@subscribe
+                        var date = data?.getSerializableExtra("com.bignerdranch.android.criminalintent") as Date
+                        val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
+                        list[crimeId].mDate = date
+                        updateDate()
+                    }
+                }, {throwable -> Log.e("TAG", throwable.toString())})
+        )
+
     }
 
     private fun updateDate() {
-        val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
-        crime_date.text = mCrime1[crimeId].mDate.toString()
+        compositeDisposable.add(
+            mCrime.mDatabase.crimeDao.getAllcrime()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe ({ list ->
+                    val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
+                    crime_date.text = list[crimeId].mDate.toString()
+
+                }, {throwable -> Log.e("TAG", throwable.toString())})
+        )
+
     }
 
     companion object {
