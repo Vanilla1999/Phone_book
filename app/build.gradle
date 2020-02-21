@@ -86,7 +86,7 @@ dependencies {
     apply plugin: 'kotlin-android-extensions'
     apply plugin: 'kotlin-kapt'
     implementation 'android.arch.persistence.room:runtime:1.1.1'
-    annotationProcessor  'android.arch.persistence.room:compiler:1.1.1'
+    annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
     kapt 'android.arch.persistence.room:compiler:1.1.1'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     // Because RxAndroid releases are few and far between, it is recommended you also

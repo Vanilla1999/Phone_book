@@ -7,15 +7,11 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.viewpager.widget.ViewPager
-import com.example.crime.database.Crime1
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 import kotlinx.android.synthetic.main.activity_crime_pager.*
-import java.lang.ref.WeakReference
-import java.util.*
 
 private var compositeDisposable = CompositeDisposable()
 
@@ -25,13 +21,13 @@ class CrimePagerActivity : AppCompatActivity(R.layout.activity_crime_pager) {
     private lateinit var mCrimes: List<Crime>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        var crimId = intent.getIntExtra(EXTRA_CRIME_ID, 0)
         val crimelab = CrimeLab.instance
         compositeDisposable.add(
             crimelab.mDatabase.crimeDao.getAllcrime()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ crimes ->
+                    var crimeId = intent.getIntExtra(EXTRA_CRIME_ID, 0)
                     val fragment = supportFragmentManager
                     pager.adapter = object : FragmentStatePagerAdapter(fragment) {
                         override fun getCount(): Int {
@@ -45,8 +41,8 @@ class CrimePagerActivity : AppCompatActivity(R.layout.activity_crime_pager) {
                     }
 
                     for (i in 0..crimes.size) {
-                       var lel=crimId
-                        if (crimes[i].id == crimId) {
+                       var lel=crimeId
+                        if (crimes[i].id == crimeId) {
                             pager.currentItem = i
 
                             break

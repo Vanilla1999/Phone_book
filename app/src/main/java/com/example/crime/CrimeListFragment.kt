@@ -31,7 +31,7 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
     lateinit var kek: crimeDatabase1
     private lateinit var c: List<Crime>
     private lateinit var mAdapter: CrimeAdapter
-    private var crime1: Crime1 = Crime1()
+
     private lateinit var list: List<Crime1>
     private var compositeDisposable = CompositeDisposable()
 
@@ -80,7 +80,7 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
 
 
     override fun onClick(position: Int) {
-        var intent = CrimePagerActivity.newIntent(context, position)
+        var intent = CrimePagerActivity.newIntent(context, position+1)
         startActivity(intent)
     }
 
@@ -135,6 +135,7 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+         var crime1 = Crime1()
         when (item.itemId) {
             R.id.new_crime -> {
                 crimelab.CrimeLab(context)
@@ -148,10 +149,10 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe { list ->
-                                        var crime = Crime()
+
                                         val k = list.size
-                                        var intent: Intent =
-                                            CrimePagerActivity.newIntent(activity, k)
+                                        var intent =
+                                            CrimeActivity.newIntent(context,k)
                                         startActivity(intent)
                                         mAdapter =
                                             CrimeAdapter(

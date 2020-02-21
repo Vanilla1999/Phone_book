@@ -1,6 +1,5 @@
 package com.example.crime
 
-import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,9 +7,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.crime.database.Crime1
 import kotlinx.android.synthetic.main.list_item_crime.view.*
 import java.lang.ref.WeakReference
-import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
-import java.util.*
 
 public class CrimeAdapter(
     private var crimes: List<Crime1>,
@@ -33,7 +29,7 @@ public class CrimeAdapter(
         val crime = crimes[position]
         //updateData(crimes)
 
-            holder.itemView.crime_date.text = crime.mDate.toString()
+            holder.itemView.crimeDate.text = crime.mDate.toString()
 
 
         holder.itemView.crime_solved.visibility= if(!crime.mSolved) View.GONE else View.VISIBLE

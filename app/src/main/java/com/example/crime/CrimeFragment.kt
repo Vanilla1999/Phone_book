@@ -6,27 +6,46 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_crime.*
 import java.util.*
+import kotlin.properties.Delegates
 
-class CrimeFragment : Fragment(R.layout.fragment_crime) {
+class CrimeFragment : Fragment() {
     val DIALOG_DATE = "DialogDate"
     val REQUES_DATE = 0
     var mCrime = CrimeLab.instance
     private var compositeDisposable = CompositeDisposable()
+   var crimeId by Delegates.notNull<Int>() // Возвращает null почему-то
 
 
-    public override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
 
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+
+        return inflater.inflate( R.layout.fragment_crime, container, false)
+    }
+
+    override fun onStart() {
+        super.onStart()
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateDate()
+    }
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
@@ -49,7 +68,6 @@ class CrimeFragment : Fragment(R.layout.fragment_crime) {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe ({ list ->
-                            val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
                             list[crimeId].mTitle = s.toString()
 
                         }, {throwable -> Log.e("TAG", throwable.toString())})
@@ -60,15 +78,15 @@ class CrimeFragment : Fragment(R.layout.fragment_crime) {
 
 
 
-        updateDate()
-        crime_date.setOnClickListener {
+
+        crimeDate.setOnClickListener {
             compositeDisposable.add(
                 mCrime.mDatabase.crimeDao.getAllcrime()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe ({ list ->
                         var manager: FragmentManager? = fragmentManager
-                        val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
+
                         var dialog: DatePickerFragment = DatePickerFragment().newInstance(list[crimeId].mDate)
                         dialog.setTargetFragment(
                             this,
@@ -81,7 +99,6 @@ class CrimeFragment : Fragment(R.layout.fragment_crime) {
                     }, {throwable -> Log.e("TAG", throwable.toString())})
             )
 
-
         }
         crime_solved.setOnCheckedChangeListener { _, isChecked ->
             compositeDisposable.add(
@@ -89,44 +106,45 @@ class CrimeFragment : Fragment(R.layout.fragment_crime) {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe ({ list ->
-                        val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
                         list[crimeId].mSolved = isChecked
                     }, {throwable -> Log.e("TAG", throwable.toString())})
             )
             }
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-
-        compositeDisposable.add(
-            mCrime.mDatabase.crimeDao.getAllcrime()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe ({ list ->
-                    super.onActivityResult(requestCode, resultCode, data)
+        super.onActivityResult(requestCode, resultCode, data)
+        lateinit var date:Date
                     if (resultCode != Activity.RESULT_OK) {
-                        return@subscribe
+                        return
                     }
                     if (requestCode == REQUES_DATE) {
-                        if (data == null) return@subscribe
-                        var date = data?.getSerializableExtra("com.bignerdranch.android.criminalintent") as Date
-                        val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
-                        list[crimeId].mDate = date
-                        updateDate()
+                        if (data == null) return
+                        date = data?.getSerializableExtra("com.bignerdranch.android.criminalintent") as Date
+
+                        crimeDate.text=date.toString()
+                       
                     }
-                }, {throwable -> Log.e("TAG", throwable.toString())})
+        compositeDisposable.add(
+            mCrime.mDatabase.crimeDao.update(date,crimeId+1)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe ()
         )
+
 
     }
 
     private fun updateDate() {
+        crimeId= arguments!!.getInt(ARG_CRIME_ID)
         compositeDisposable.add(
             mCrime.mDatabase.crimeDao.getAllcrime()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe ({ list ->
-                    val crimeId = arguments!!.getInt(ARG_CRIME_ID) // Возвращает null почему-то
-                    crime_date.text = list[crimeId].mDate.toString()
+
+                    crimeDate.text = list[crimeId].mDate.toString()
 
                 }, {throwable -> Log.e("TAG", throwable.toString())})
         )
@@ -140,7 +158,6 @@ class CrimeFragment : Fragment(R.layout.fragment_crime) {
             args.apply {
                 putInt(ARG_CRIME_ID, crimeId)
             }
-
             var fragment = CrimeFragment()
             fragment.arguments = args
             return fragment

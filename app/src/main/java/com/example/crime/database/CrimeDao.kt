@@ -4,6 +4,7 @@ import androidx.room.*
 
 import io.reactivex.Completable
 import io.reactivex.Single
+import java.util.*
 
 
 @Dao
@@ -16,9 +17,8 @@ abstract class CrimeDao {
 
     @Insert
    abstract fun insert(crime1: Crime1): Completable
-
-    @Update
-    abstract fun update(crime1: Crime1)
+    @Query("Update CRIME1 SET mDate=:date where id=:id")
+    abstract fun update( date: Date,id:Int): Completable
 
     @Delete
     abstract fun delete(crime1: Crime1): Completable
