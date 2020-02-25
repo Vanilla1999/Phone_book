@@ -20,6 +20,13 @@ import kotlinx.android.synthetic.main.fragment_crime_list.*
 
 
 import java.lang.ref.WeakReference
+import android.widget.Toast
+import android.R.attr.orientation
+import android.content.res.Configuration
+import android.view.View
+import androidx.fragment.app.FragmentManager
+import kotlinx.android.synthetic.main.activity_main.textView
+import kotlinx.android.synthetic.main.activity_twopane.*
 
 
 class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.OnItemClickListener {
@@ -28,6 +35,7 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
     private val EXTRA_ANSWER_SHOWN = 0
     private var mSubtitleVisible: Boolean = true
     private var crimelab = CrimeLab.instance
+    private var b: Int = 2
     lateinit var kek: crimeDatabase1
     private lateinit var c: List<Crime>
     private lateinit var mAdapter: CrimeAdapter
@@ -42,7 +50,11 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { list ->
                     mAdapter =
-                        CrimeAdapter(list, WeakReference(this), WeakReference(activity as CrimeListActivity))
+                        CrimeAdapter(
+                            list,
+                            WeakReference(this),
+                            WeakReference(activity as CrimeListActivity)
+                        )
                     mAdapter.notifyDataSetChanged()
                     crimeRecyclerView.adapter = mAdapter
                 })
@@ -62,7 +74,7 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
             crimelab.mDatabase.crimeDao.getAllcrime()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe ({ list ->
+                .subscribe({ list ->
                     mAdapter =
                         CrimeAdapter(
                             list,
@@ -71,17 +83,24 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
                         )
                     mAdapter.notifyDataSetChanged()
                     crimeRecyclerView.adapter = mAdapter
-                }, {throwable -> Log.e("TAG", throwable.toString())})
+                }, { throwable -> Log.e("TAG", throwable.toString()) })
         )
 
-       // return crimeRecyclerView.setAdapter(mAdapter)
+        // return crimeRecyclerView.setAdapter(mAdapter)
 
     }
 
 
     override fun onClick(position: Int) {
-        var intent = CrimePagerActivity.newIntent(context, position+1)
-        startActivity(intent)
+        if (resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE) {
+            var intent = CrimePagerActivity.newIntent(context, position + 1)
+            startActivity(intent)
+        } else {
+            val newDetail = CrimeFragment.newInstance(position + 1)
+            val fm: FragmentManager? = fragmentManager
+            fm!!.beginTransaction().replace(R.id.detail_fragment_container, newDetail).commit()
+        }
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -120,7 +139,7 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { crimes ->
-                    if (crimes.isEmpty() ) activity?.textView?.text = "Список пуст"
+                    if (crimes.isEmpty()) activity?.textView?.text = "Список пуст"
                     else activity?.textView?.text = null
                 })
     }
@@ -135,7 +154,7 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-         var crime1 = Crime1()
+        var crime1 = Crime1()
         when (item.itemId) {
             R.id.new_crime -> {
                 crimelab.CrimeLab(context)
@@ -152,7 +171,7 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
 
                                         val k = list.size
                                         var intent =
-                                            CrimeActivity.newIntent(context,k)
+                                            CrimeActivity.newIntent(context, k)
                                         startActivity(intent)
                                         mAdapter =
                                             CrimeAdapter(
@@ -161,7 +180,8 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
                                                 WeakReference(activity as CrimeListActivity)
                                             )
                                         mAdapter.notifyDataSetChanged()
-                                    }) })
+                                    })
+                        })
 
                 return true
             }
@@ -201,6 +221,9 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
         super.onDestroy()
         compositeDisposable.dispose()
     }
+
+
+
     companion object {
         val SAVED_SUBTITLE_VISIBLE = "subtitle"
     }
