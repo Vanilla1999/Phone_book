@@ -10,4 +10,9 @@
         android:id="@+id/show_subtitle"
         android:title="@string/show_subtitle"
         app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/MVVM"
+        android:icon="@drawable/hellow_android_disabled"
+        android:title="MVVM"
+        app:showAsAction="ifRoom"/>
 </menu>

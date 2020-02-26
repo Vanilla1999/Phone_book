@@ -3,18 +3,14 @@ package com.example.crime
 import android.content.Context
 import androidx.room.Room
 import com.example.crime.database.Crime1
-import com.example.crime.database.CrimeBaseHelper
 import com.example.crime.database.crimeDatabase1
 import java.io.File
-
-import java.util.*
-import kotlin.collections.ArrayList
 
 class CrimeLab  {
     private object HOLDER {
         val INSTANCE = CrimeLab()
     }
-
+// Он каким-то образом передает контекст при инициализации
     companion object {
         val instance: CrimeLab by lazy { HOLDER.INSTANCE }
     }

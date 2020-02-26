@@ -4,6 +4,7 @@ import androidx.room.*
 
 import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.disposables.Disposable
 import java.util.*
 
 
@@ -16,10 +17,12 @@ abstract class CrimeDao {
     abstract fun getCrime(id:Long):Single<Crime1>
 
     @Insert
-   abstract fun insert(crime1: Crime1): Completable
-    @Query("Update CRIME1 SET mDate=:date where id=:id")
-    abstract fun update( date: Date,id:Int): Completable
+   abstract fun insert(crime1: Crime1):Completable
+    @Query("UPDATE CRIME1 SET mSolved=:f where id=:id")
+    abstract fun update( f:Boolean,id:Int):Completable
+    @Query("UPDATE CRIME1 SET mDate=:f where id=:id")
+    abstract fun update( f:Date,id:Int):Completable
 
     @Delete
-    abstract fun delete(crime1: Crime1): Completable
+    abstract fun delete(crime1: Crime1):Completable
 }

@@ -96,7 +96,7 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
             var intent = CrimePagerActivity.newIntent(context, position + 1)
             startActivity(intent)
         } else {
-            val newDetail = CrimeFragment.newInstance(position + 1)
+            val newDetail = CrimeFragment.newInstance(position )
             val fm: FragmentManager? = fragmentManager
             fm!!.beginTransaction().replace(R.id.detail_fragment_container, newDetail).commit()
         }
@@ -221,7 +221,6 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
         super.onDestroy()
         compositeDisposable.dispose()
     }
-
 
 
     companion object {

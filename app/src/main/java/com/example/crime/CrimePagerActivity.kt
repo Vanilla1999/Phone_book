@@ -35,7 +35,7 @@ class CrimePagerActivity : AppCompatActivity(R.layout.activity_crime_pager) {
                         }
 
                         override fun getItem(position: Int): Fragment {
-                            val crime = crimes[position]
+//                            val crime = crimes[position]
                             return CrimeFragment.newInstance(position)
                         }
                     }

@@ -16,6 +16,7 @@ import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import io.reactivex.Completable
 
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -29,6 +30,7 @@ class CrimeFragment : Fragment() {
     val REQUES_DATE = 0
     var mCrime = CrimeLab.instance
     private var compositeDisposable = CompositeDisposable()
+
     var crimeId by Delegates.notNull<Int>() // Возвращает null почему-то
     val REQUEST_PHOTO = 2
 
@@ -40,14 +42,35 @@ class CrimeFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_crime, container, false)
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
+        crimeId = arguments!!.getInt(ARG_CRIME_ID)
+        compositeDisposable.add(
+            mCrime.mDatabase.crimeDao.getAllcrime()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ list ->
+                    crime_solved.isChecked = list[crimeId].mSolved
+                    crimeDate.text = list[crimeId].mDate.toString() // Надо будет доделать .
+                    val mPhotoFile = mCrime.getPhotofile(list[crimeId])
+                    if (!mPhotoFile.exists()) {
+                        crime_photo.setImageDrawable(null)
+                    } else {
+                        val bitmap: Bitmap =
+                            PictureUtils.getScaledBitmap(mPhotoFile.path, activity!!)
+                        crime_photo.setImageBitmap(bitmap)
+                    }
+
+                }, { throwable -> Log.e("TAG", throwable.toString()) })
+        )
+
 
     }
 
-    override fun onResume() {
-        super.onResume()
-        updateDate()
+    override fun onDestroy() {
+        super.onDestroy()
+
+        compositeDisposable.dispose()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -80,17 +103,16 @@ class CrimeFragment : Fragment() {
             }
         })
 
-        compositeDisposable.add(
-            mCrime.mDatabase.crimeDao.getAllcrime()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ list ->
-                    val mPhotoFile = mCrime.getPhotofile(list[crimeId ])
-                    val captureImage = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                    val canTakePhoto = mPhotoFile != null
-                    // Работа с фотографиями, пока криво.
-                    crime_button.isEnabled = canTakePhoto
-                    crime_button.setOnClickListener {
+        crime_button.setOnClickListener {
+            compositeDisposable.add(
+                mCrime.mDatabase.crimeDao.getAllcrime()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ list ->
+                        val mPhotoFile = mCrime.getPhotofile(list[crimeId])
+                        val captureImage = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+
+
                         val uri = FileProvider.getUriForFile(
                             context!!,
                             "com.bignerdranch.android.criminalintent.fileprovider",
@@ -110,17 +132,18 @@ class CrimeFragment : Fragment() {
                             )
                         }
                         startActivityForResult(captureImage, REQUEST_PHOTO)
-                        if(mPhotoFile == null||!mPhotoFile.exists()){
+                        if (!mPhotoFile.exists()) {
                             crime_photo.setImageDrawable(null)
-                        } else{
-                            val bitmap:Bitmap = PictureUtils.getScaledBitmap(mPhotoFile.path,activity!!)
+                        } else {
+                            val bitmap: Bitmap =
+                                PictureUtils.getScaledBitmap(mPhotoFile.path, activity!!)
                             crime_photo.setImageBitmap(bitmap)
                         }
 
-                    }
-                }, { throwable -> Log.e("TAG", throwable.toString()) })
-        )
 
+                    }, { throwable -> Log.e("TAG", throwable.toString()) })
+            )
+        }
         crimeDate.setOnClickListener {
             compositeDisposable.add(
                 mCrime.mDatabase.crimeDao.getAllcrime()
@@ -150,6 +173,14 @@ class CrimeFragment : Fragment() {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ list ->
                         list[crimeId].mSolved = isChecked
+                        compositeDisposable.add(
+                            mCrime.mDatabase.crimeDao.update(isChecked, crimeId + 1)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe {
+                                })
+
+
                     }, { throwable -> Log.e("TAG", throwable.toString()) })
             )
         }
@@ -157,44 +188,55 @@ class CrimeFragment : Fragment() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        lateinit var date: Date
-        if (resultCode != Activity.RESULT_OK) {
-            return
-        }
-        if (requestCode == REQUES_DATE) {
-            if (data == null) return
-            date = data?.getSerializableExtra("com.bignerdranch.android.criminalintent") as Date
-
-            crimeDate.text = date.toString()
-
-        }
-
-        compositeDisposable.add(
-            mCrime.mDatabase.crimeDao.update(date, crimeId + 1)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe()
-        )
-
-
-    }
-
-
-    private fun updateDate() {
-        crimeId = arguments!!.getInt(ARG_CRIME_ID)
         compositeDisposable.add(
             mCrime.mDatabase.crimeDao.getAllcrime()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ list ->
+                .subscribe { list ->
+                    super.onActivityResult(requestCode, resultCode, data)
 
-                    crimeDate.text = list[crimeId].mDate.toString()
+                    lateinit var date: Date
+                    if (resultCode != Activity.RESULT_OK) {
+                        return@subscribe
+                    }
+                    if (requestCode == REQUES_DATE) {
+                        if (data == null) return@subscribe
+                        date =
+                            data?.getSerializableExtra("com.bignerdranch.android.criminalintent") as Date
 
-                }, { throwable -> Log.e("TAG", throwable.toString()) })
+                        crimeDate.text = date.toString()
+                        list[crimeId].mDate = date
+                        compositeDisposable.add(
+                            mCrime.mDatabase.crimeDao.update(date, crimeId + 1)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe {
+                                })
+
+                    }
+
+
+                    val mPhotoFile = mCrime.getPhotofile(list[crimeId])
+
+                    if (requestCode == REQUEST_PHOTO) {
+                        val uri = FileProvider.getUriForFile(
+                            context!!,
+                            "com.bignerdranch.android.criminalintent.fileprovider",
+                            mPhotoFile
+                        )
+                        activity!!.revokeUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                        if (!mPhotoFile.exists()) {
+                            crime_photo.setImageDrawable(null)
+                        } else {
+                            val bitmap: Bitmap =
+                                PictureUtils.getScaledBitmap(mPhotoFile.path, activity!!)
+                            crime_photo.setImageBitmap(bitmap)
+                        }
+                    }
+                }
         )
-
     }
+
 
     companion object {
         val ARG_CRIME_ID = "crime_id"
