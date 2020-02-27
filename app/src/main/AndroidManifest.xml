@@ -11,7 +11,6 @@
         android:theme="@style/AppTheme">
         <activity android:name=".CrimeListActivity"
             >
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -21,6 +20,8 @@
             android:parentActivityName=".CrimeListActivity">
         </activity>
         <activity android:name=".CrimeActivity">
+        </activity>
+        <activity android:name=".BeatBox.BeatBoxActivity">
         </activity>
         <provider
             android:name="androidx.core.content.FileProvider"

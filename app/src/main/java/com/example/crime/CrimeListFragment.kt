@@ -25,6 +25,7 @@ import android.R.attr.orientation
 import android.content.res.Configuration
 import android.view.View
 import androidx.fragment.app.FragmentManager
+import com.example.crime.BeatBox.BeatBoxActivity
 import kotlinx.android.synthetic.main.activity_main.textView
 import kotlinx.android.synthetic.main.activity_twopane.*
 
@@ -183,6 +184,11 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
                                     })
                         })
 
+                return true
+            }
+            R.id.MVVM -> {
+                var intent = BeatBoxActivity.newIntent(context)
+                startActivity(intent)
                 return true
             }
             R.id.show_subtitle -> {
