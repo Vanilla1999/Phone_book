@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
@@ -99,12 +100,22 @@ class CrimeFragment : Fragment() {
                 before: Int, count: Int
             ) {
                 _new = s.subSequence(start, start + count).toString()
-             // тут я бред написал
+                // тут я бред написал
 
 
             }
         })
-
+        button3.setOnClickListener {
+            compositeDisposable.add(
+                mCrime.mDatabase.crimeDao.getAllcrime()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ list ->
+                        var i = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${list[crimeId].mTitle}"))
+                        startActivity(i)
+                    }, { throwable -> Log.e("TAG", throwable.toString()) })
+            )
+        }
         crime_button.setOnClickListener {
             compositeDisposable.add(
                 mCrime.mDatabase.crimeDao.getAllcrime()

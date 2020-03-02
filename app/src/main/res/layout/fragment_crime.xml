@@ -52,6 +52,12 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/crime_title_hint" />
 
+            <Button
+                android:id="@+id/button3"
+                android:layout_width="match_parent"
+                android:layout_height="42dp"
+                android:drawableBottom="@drawable/ic_phone_black_24dp" />
+
         </LinearLayout>
     </LinearLayout>
 
@@ -60,7 +66,7 @@
         style="?android:listSeparatorTextViewStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/crime_details_label" />
+        android:text="День рождения" />
 
     <Button
         android:id="@+id/crimeDate"
@@ -71,6 +77,6 @@
         android:id="@+id/crime_solved"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/crime_solved_label" />
+        android:text="Жив" />
 
 </LinearLayout>
