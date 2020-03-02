@@ -5,10 +5,12 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
-class CrimeListActivity :SingleFragmentActivity(), CrimeAdapter.OnItemClickListener{
+open class CrimeListActivity :SingleFragmentActivity(), CrimeAdapter.OnItemClickListener{
     private var b=2
     override fun onClick(position: Int) {
         if (textView.isVisible) textView.visibility = View.GONE else textView.visibility = View.VISIBLE
@@ -21,5 +23,7 @@ class CrimeListActivity :SingleFragmentActivity(), CrimeAdapter.OnItemClickListe
 override fun getLayoutResId():Int{
 return R.layout.activity_twopane
 }
-
+open fun navig():NavController{
+    return Navigation.findNavController(this,R.id.nav_host_fragment_container)
+}
 }

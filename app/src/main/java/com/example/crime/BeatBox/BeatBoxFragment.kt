@@ -50,8 +50,9 @@ class BeatBoxFragment : Fragment(), BeatboxAdapter.OnItemClickListener {
                             list,
                             WeakReference(this)
                         )
-                    mAdapter.notifyDataSetChanged()
+
                     crimeRecyclerView2.adapter = mAdapter
+                    mAdapter.notifyDataSetChanged()
                 }, { throwable -> Log.e("TAG", throwable.toString()) })
         )
             return binding.root
@@ -59,7 +60,19 @@ class BeatBoxFragment : Fragment(), BeatboxAdapter.OnItemClickListener {
 
     override fun onResume() {
         super.onResume()
-        mAdapter.notifyDataSetChanged()
+        compositeDisposable.add(
+            crimelab.mDatabase.crimeDao.getAllcrime()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ list ->
+                    mAdapter =
+                        BeatboxAdapter(
+                            list,
+                            WeakReference(this)
+                        )
+                    crimeRecyclerView2.adapter = mAdapter
+                    mAdapter.notifyDataSetChanged()
+                }, { throwable -> Log.e("TAG", throwable.toString()) }))
     }
     override fun onClick(position: Int) {
         var intent = CrimePagerActivity.newIntent(context, position + 1)

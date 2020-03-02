@@ -25,6 +25,8 @@ import android.R.attr.orientation
 import android.content.res.Configuration
 import android.view.View
 import androidx.fragment.app.FragmentManager
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import com.example.crime.BeatBox.BeatBoxActivity
 import kotlinx.android.synthetic.main.activity_main.textView
 import kotlinx.android.synthetic.main.activity_twopane.*
@@ -43,6 +45,7 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
 
     private lateinit var list: List<Crime1>
     private var compositeDisposable = CompositeDisposable()
+    private lateinit var  navController:NavController
 
     fun swapData(c: List<Crime1>) {
         compositeDisposable.add(
@@ -67,6 +70,7 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
         if (savedInstanceState != null) mSubtitleVisible = savedInstanceState.getBoolean(
             SAVED_SUBTITLE_VISIBLE
         )// передаем сохраненное значение
+        navController= Navigation.findNavController(activity as CrimeListActivity,R.id.nav_host_fragment_container)
         crimeRecyclerView.layoutManager = LinearLayoutManager(activity)
         setHasOptionsMenu(true)
         crimelab.CrimeLab(context)// потоки
@@ -94,8 +98,7 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
 
     override fun onClick(position: Int) {
         if (resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE) {
-            var intent = CrimePagerActivity.newIntent(context, position + 1)
-            startActivity(intent)
+            navController.navigate(R.id.crimePagerActivity)
         } else {
             val newDetail = CrimeFragment.newInstance(position )
             val fm: FragmentManager? = fragmentManager

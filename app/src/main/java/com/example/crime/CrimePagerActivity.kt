@@ -16,6 +16,7 @@ import kotlinx.android.synthetic.main.activity_crime_pager.*
 private var compositeDisposable = CompositeDisposable()
 
 @Suppress("DEPRECATION")
+// Засунуть в ФРАГМЕНТ
 class CrimePagerActivity : AppCompatActivity(R.layout.activity_crime_pager) {
 
     private lateinit var mCrimes: List<Crime>
