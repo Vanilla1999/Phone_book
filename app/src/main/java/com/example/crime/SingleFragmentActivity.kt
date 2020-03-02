@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import com.facebook.stetho.Stetho
 
 abstract   class SingleFragmentActivity :AppCompatActivity() { // Нужен для того,чтобы постоянно не писать один и тот же код. будем эти методы у себя реализовывать. ХЗ вроде и так все было норм
@@ -16,16 +17,15 @@ abstract   class SingleFragmentActivity :AppCompatActivity() { // Нужен д�
         return R.layout.activity_main
     }
     protected override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
         Stetho.initializeWithDefaults(this)
         setContentView(getLayoutResId())
         val fm: FragmentManager = supportFragmentManager
-        var fragment: Fragment? = fm.findFragmentById(R.id.fr)
+        var fragment: Fragment? = fm.findFragmentById(R.id.nav_host_fragment)
         if (fragment == null) {
             fragment = createFragment()
 
-            fm.beginTransaction().add(R.id.fr, fragment).commit()
+            fm.beginTransaction().add(R.id.nav_host_fragment, fragment).commit()
 
         }
     }

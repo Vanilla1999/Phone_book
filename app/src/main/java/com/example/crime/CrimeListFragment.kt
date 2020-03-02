@@ -24,9 +24,11 @@ import android.widget.Toast
 import android.R.attr.orientation
 import android.content.res.Configuration
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.example.crime.BeatBox.BeatBoxActivity
 import kotlinx.android.synthetic.main.activity_main.textView
 import kotlinx.android.synthetic.main.activity_twopane.*
@@ -70,7 +72,8 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
         if (savedInstanceState != null) mSubtitleVisible = savedInstanceState.getBoolean(
             SAVED_SUBTITLE_VISIBLE
         )// передаем сохраненное значение
-        navController= Navigation.findNavController(activity as CrimeListActivity,R.id.nav_host_fragment_container)
+        navController= findNavController()
+
         crimeRecyclerView.layoutManager = LinearLayoutManager(activity)
         setHasOptionsMenu(true)
         crimelab.CrimeLab(context)// потоки
@@ -98,7 +101,9 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
 
     override fun onClick(position: Int) {
         if (resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE) {
-            navController.navigate(R.id.crimePagerActivity)
+
+            var bundle = bundleOf("amount" to position+1)
+            navController.navigate(R.id.crimePagerActivity,bundle)
         } else {
             val newDetail = CrimeFragment.newInstance(position )
             val fm: FragmentManager? = fragmentManager

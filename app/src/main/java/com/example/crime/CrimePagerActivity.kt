@@ -28,7 +28,7 @@ class CrimePagerActivity : AppCompatActivity(R.layout.activity_crime_pager) {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ crimes ->
-                    var crimeId = intent.getIntExtra(EXTRA_CRIME_ID, 0)
+                    var crimeId =intent.getIntExtra("amount",0)
                     val fragment = supportFragmentManager
                     pager.adapter = object : FragmentStatePagerAdapter(fragment) {
                         override fun getCount(): Int {
@@ -36,16 +36,14 @@ class CrimePagerActivity : AppCompatActivity(R.layout.activity_crime_pager) {
                         }
 
                         override fun getItem(position: Int): Fragment {
-//                            val crime = crimes[position]
+
                             return CrimeFragment.newInstance(position)
                         }
                     }
 
                     for (i in 0..crimes.size) {
-                       var lel=crimeId
                         if (crimes[i].id == crimeId) {
                             pager.currentItem = i
-
                             break
                         }
                     }
