@@ -22,6 +22,8 @@ abstract class CrimeDao {
     abstract fun update( f:Boolean,id:Int):Completable
     @Query("UPDATE CRIME1 SET mDate=:f where id=:id")
     abstract fun update( f:Date,id:Int):Completable
+    @Update
+    abstract fun update(crime1: Crime1):Completable
 
     @Delete
     abstract fun delete(crime1: Crime1):Completable

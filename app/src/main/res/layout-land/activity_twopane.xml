@@ -1,24 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:divider="?android:attr/dividerHorizontal"
-    android:showDividers="middle"
-    >
+    android:showDividers="middle">
 
     <FrameLayout
         android:id="@+id/fr"
         android:layout_width="52dp"
         android:layout_height="match_parent"
         android:layout_weight="1.5">
-
+        <fragment
+            android:id="@+id/nav_host_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:defaultNavHost="true"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            app:navGraph="@navigation/navi"/>
     </FrameLayout>
 
     <FrameLayout
+
         android:id="@+id/detail_fragment_container"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="3">
+
 
     </FrameLayout>
 

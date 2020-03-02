@@ -10,18 +10,19 @@ import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import com.example.crime.database.Crime1
 import io.reactivex.Completable
 
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_crime.*
+import java.lang.ref.WeakReference
 import java.util.*
 import kotlin.properties.Delegates
 
@@ -38,7 +39,7 @@ class CrimeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
+        setHasOptionsMenu(true)
         return inflater.inflate(R.layout.fragment_crime, container, false)
     }
 
@@ -51,6 +52,7 @@ class CrimeFragment : Fragment() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ list ->
                     crime_solved.isChecked = list[crimeId].mSolved
+                    crime_title2.setText(list[crimeId].mTitle)
                     crimeDate.text = list[crimeId].mDate.toString() // Надо будет доделать .
                     val mPhotoFile = mCrime.getPhotofile(list[crimeId])
                     if (!mPhotoFile.exists()) {
@@ -67,38 +69,38 @@ class CrimeFragment : Fragment() {
 
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        compositeDisposable.dispose()
-    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        lateinit var _new: String
+        lateinit var _before: String
+        lateinit var _old: String
+        lateinit var _after: String
+        var _ignore = false
 
         crime_title.addTextChangedListener(object : TextWatcher {
 
-            override fun afterTextChanged(s: Editable) {}
+            override fun afterTextChanged(s: Editable) {
+
+            }
 
             override fun beforeTextChanged(
                 s: CharSequence, start: Int,
                 count: Int, after: Int
             ) {
+                _before = s.subSequence(0, start).toString();
+                _old = s.subSequence(start, start + count).toString();
+                _after = s.subSequence(start + count, s.length).toString();
             }
+
 
             override fun onTextChanged(
                 s: CharSequence, start: Int,
                 before: Int, count: Int
             ) {
-                compositeDisposable.add(
-                    mCrime.mDatabase.crimeDao.getAllcrime()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({ list ->
-                            list[crimeId].mTitle = s.toString()
+                _new = s.subSequence(start, start + count).toString()
+             // тут я бред написал
 
-                        }, { throwable -> Log.e("TAG", throwable.toString()) })
-                )
 
             }
         })
@@ -237,6 +239,42 @@ class CrimeFragment : Fragment() {
         )
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu2, menu)
+
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        var crime1 = Crime1()
+        when (item.itemId) {
+            R.id.new_crime -> {
+                compositeDisposable.add(
+                    mCrime.mDatabase.crimeDao.getAllcrime()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe { list ->
+                            list[crimeId].mTitle = crime_title2.text.toString()
+                            compositeDisposable.add(
+                                mCrime.mDatabase.crimeDao.update(list[crimeId])
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe {})
+                            Toast.makeText(activity, R.string.correct_kek, Toast.LENGTH_SHORT)
+                                .show()
+                        })
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        compositeDisposable.dispose()
+    }
 
     companion object {
         val ARG_CRIME_ID = "crime_id"

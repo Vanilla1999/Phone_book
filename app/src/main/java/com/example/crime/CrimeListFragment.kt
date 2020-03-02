@@ -102,12 +102,13 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
     override fun onClick(position: Int) {
         if (resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE) {
 
-            var bundle = bundleOf("amount" to position+1)
-            navController.navigate(R.id.crimePagerActivity,bundle)
+            var bundle = bundleOf("id" to position+1)
+            navController.navigate(R.id.crimePagerActivity,bundle) // тут мы передаем ТУДА значения, обратно вернуть можно тем-же способом ( стрелочка поворачивается )
         } else {
-            val newDetail = CrimeFragment.newInstance(position )
-            val fm: FragmentManager? = fragmentManager
-            fm!!.beginTransaction().replace(R.id.detail_fragment_container, newDetail).commit()
+
+//            val newDetail = CrimeFragment.newInstance(position)
+//            val fm: FragmentManager? = fragmentManager
+//            fm!!.beginTransaction().replace(R.id.detail_fragment_container, newDetail).commit()
         }
 
     }
@@ -195,8 +196,7 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
                 return true
             }
             R.id.MVVM -> {
-                var intent = BeatBoxActivity.newIntent(context)
-                startActivity(intent)
+                navController.navigate(R.id.beatBoxFragment) // надо зибавиться от АКТИВИТИ
                 return true
             }
             R.id.show_subtitle -> {
