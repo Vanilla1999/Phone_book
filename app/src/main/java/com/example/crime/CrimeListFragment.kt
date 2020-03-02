@@ -23,6 +23,7 @@ import java.lang.ref.WeakReference
 import android.widget.Toast
 import android.R.attr.orientation
 import android.content.res.Configuration
+import android.provider.MediaStore
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentManager
@@ -112,6 +113,9 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
         }
 
     }
+
+
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
