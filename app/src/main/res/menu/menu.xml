@@ -15,4 +15,9 @@
         android:icon="@drawable/hellow_android_disabled"
         android:title="MVVM"
         app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/Retrogit"
+        android:icon="@drawable/hellow_android_disabled"
+        android:title="R"
+        app:showAsAction="ifRoom"/>
 </menu>

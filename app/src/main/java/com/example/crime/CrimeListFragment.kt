@@ -48,7 +48,7 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
 
     private lateinit var list: List<Crime1>
     private var compositeDisposable = CompositeDisposable()
-    private lateinit var  navController:NavController
+    private lateinit var navController: NavController
 
     fun swapData(c: List<Crime1>) {
         compositeDisposable.add(
@@ -73,7 +73,7 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
         if (savedInstanceState != null) mSubtitleVisible = savedInstanceState.getBoolean(
             SAVED_SUBTITLE_VISIBLE
         )// передаем сохраненное значение
-        navController= findNavController()
+        navController = findNavController()
 
         crimeRecyclerView.layoutManager = LinearLayoutManager(activity)
         setHasOptionsMenu(true)
@@ -103,18 +103,19 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
     override fun onClick(position: Int) {
         if (resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE) {
 
-            var bundle = bundleOf("id" to position+1)
-            navController.navigate(R.id.crimePagerActivity,bundle) // тут мы передаем ТУДА значения, обратно вернуть можно тем-же способом ( стрелочка поворачивается )
+            var bundle = bundleOf("id" to position + 1)
+            navController.navigate(
+                R.id.crimePagerActivity,
+                bundle
+            ) // тут мы передаем ТУДА значения, обратно вернуть можно тем-же способом ( стрелочка поворачивается )
         } else {
 
-//            val newDetail = CrimeFragment.newInstance(position)
-//            val fm: FragmentManager? = fragmentManager
-//            fm!!.beginTransaction().replace(R.id.detail_fragment_container, newDetail).commit()
+            val newDetail = CrimeFragment.newInstance(position)
+            val fm: FragmentManager? = childFragmentManager
+            fm!!.beginTransaction().replace(R.id.detail_fragment_container, newDetail).commit()
         }
 
     }
-
-
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -203,6 +204,10 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
                 navController.navigate(R.id.beatBoxFragment) // надо зибавиться от АКТИВИТИ
                 return true
             }
+            R.id.Retrogit -> {
+                navController.navigate(R.id.retrofitFragment)
+                return true
+            }
             R.id.show_subtitle -> {
                 mSubtitleVisible = !mSubtitleVisible
                 activity?.invalidateOptionsMenu()// используется, чтобы сказать Android, что содержимое меню изменилось
@@ -245,6 +250,3 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
         val SAVED_SUBTITLE_VISIBLE = "subtitle"
     }
 }
-
-
-
