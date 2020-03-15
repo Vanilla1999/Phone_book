@@ -197,7 +197,27 @@ class CrimeFragment : Fragment() {
                     }, { throwable -> Log.e("TAG", throwable.toString()) })
             )
         }
+        crime_photo.setOnClickListener{
+            compositeDisposable.add(
+                mCrime.mDatabase.crimeDao.getAllcrime()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ list ->
+                        var manager: FragmentManager? = fragmentManager
 
+                        var dialog: DialogImage =
+                            DialogImage().newInstance(list[crimeId])
+                        dialog.setTargetFragment(
+                            this,
+                            REQUES_DATE
+                        )// Назначение целевого фрагмента, связываем фрагмент и диалоговое окно
+                        if (manager != null) {
+                            dialog.show(manager, DIALOG_DATE)
+                        }
+
+                    }, { throwable -> Log.e("TAG", throwable.toString()) })
+            )
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

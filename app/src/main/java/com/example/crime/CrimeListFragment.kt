@@ -205,7 +205,7 @@ class CrimeListFragment : Fragment(R.layout.fragment_crime_list), CrimeAdapter.O
                 return true
             }
             R.id.Retrogit -> {
-                navController.navigate(R.id.retrofitFragment)
+                navController.navigate(R.id.photoFragment)
                 return true
             }
             R.id.show_subtitle -> {
